@@ -55,7 +55,7 @@ mrb_esp32_ledc_channel_config(mrb_state *mrb, mrb_value self) {
 }
 
 static mrb_value
-mrb_esp32_ledc_write(mrb_state *mrb, mrb_value self) {
+mrb_esp32_ledc_set_duty(mrb_state *mrb, mrb_value self) {
   mrb_value group, ch, duty;
 
   mrb_get_args(mrb, "ooo", &group, &ch, &duty);
@@ -64,7 +64,7 @@ mrb_esp32_ledc_write(mrb_state *mrb, mrb_value self) {
     return mrb_nil_value();
   }
   
-  // Write the duty cycle.
+  // Write the duty cycle to the channel.
   ESP_ERROR_CHECK(ledc_set_duty(mrb_fixnum(group), mrb_fixnum(ch), mrb_fixnum(duty)));
   ESP_ERROR_CHECK(ledc_update_duty(mrb_fixnum(group), mrb_fixnum(ch)));
   
@@ -72,7 +72,55 @@ mrb_esp32_ledc_write(mrb_state *mrb, mrb_value self) {
 }
 
 static mrb_value
-mrb_esp32_ledc_detach(mrb_state *mrb, mrb_value self) {
+mrb_esp32_ledc_set_freq(mrb_state *mrb, mrb_value self) {
+  mrb_value group, timer, freq;
+
+  mrb_get_args(mrb, "ooo", &group, &timer, &freq);
+
+  if (!mrb_fixnum_p(group) || !mrb_fixnum_p(timer) || !mrb_fixnum_p(freq)) {
+    return mrb_nil_value();
+  }
+  
+  // Write the frequency to the timer.
+  ESP_ERROR_CHECK(ledc_set_freq(mrb_fixnum(group), mrb_fixnum(timer), mrb_fixnum(freq)));
+    
+  return self;
+}
+
+static mrb_value
+mrb_esp32_ledc_stop(mrb_state *mrb, mrb_value self) {
+  mrb_value group, ch, idle;
+
+  mrb_get_args(mrb, "ooo", &group, &ch, &idle);
+
+  if (!mrb_fixnum_p(group) || !mrb_fixnum_p(ch) || !mrb_fixnum_p(idle)) {
+    return mrb_nil_value();
+  }
+  
+  // Write the frequency to the timer.
+  ESP_ERROR_CHECK(ledc_stop(mrb_fixnum(group), mrb_fixnum(ch), mrb_fixnum(idle)));
+    
+  return self;
+}
+
+static mrb_value
+mrb_esp32_ledc_set_pin(mrb_state *mrb, mrb_value self) {
+  mrb_value pin, group, ch;
+
+  mrb_get_args(mrb, "ooo", &pin, &group, &ch);
+
+  if (!mrb_fixnum_p(pin) || !mrb_fixnum_p(group) || !mrb_fixnum_p(ch)) {
+    return mrb_nil_value();
+  }
+  
+  // Write the frequency to the timer.
+  ESP_ERROR_CHECK(ledc_set_pin(mrb_fixnum(pin), mrb_fixnum(group), mrb_fixnum(ch)));
+    
+  return self;
+}
+
+static mrb_value
+mrb_esp32_ledc_unset_pin(mrb_state *mrb, mrb_value self) {
   mrb_value pin;
 
   mrb_get_args(mrb, "o", &pin);
@@ -98,8 +146,11 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
   ledc = mrb_define_module_under(mrb, esp32, "LEDC");
   mrb_define_module_function(mrb, ledc, "timer_config", mrb_esp32_ledc_timer_config, MRB_ARGS_REQ(4));
   mrb_define_module_function(mrb, ledc, "channel_config", mrb_esp32_ledc_channel_config, MRB_ARGS_REQ(4));
-  mrb_define_module_function(mrb, ledc, "write", mrb_esp32_ledc_write, MRB_ARGS_REQ(3));
-  mrb_define_module_function(mrb, ledc, "detach", mrb_esp32_ledc_detach, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, ledc, "set_duty", mrb_esp32_ledc_set_duty, MRB_ARGS_REQ(3));
+  mrb_define_module_function(mrb, ledc, "set_freq", mrb_esp32_ledc_set_freq, MRB_ARGS_REQ(3));
+  mrb_define_module_function(mrb, ledc, "stop", mrb_esp32_ledc_stop, MRB_ARGS_REQ(3));
+  mrb_define_module_function(mrb, ledc, "set_pin", mrb_esp32_ledc_set_pin, MRB_ARGS_REQ(3));
+  mrb_define_module_function(mrb, ledc, "unset_pin", mrb_esp32_ledc_unset_pin, MRB_ARGS_REQ(1));
 
   constants = mrb_define_module_under(mrb, esp32, "Constants");
 
