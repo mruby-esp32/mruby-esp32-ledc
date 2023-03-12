@@ -99,7 +99,7 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
   mrb_define_module_function(mrb, ledc, "timer_config", mrb_esp32_ledc_timer_config, MRB_ARGS_REQ(4));
   mrb_define_module_function(mrb, ledc, "channel_config", mrb_esp32_ledc_channel_config, MRB_ARGS_REQ(4));
   mrb_define_module_function(mrb, ledc, "write", mrb_esp32_ledc_write, MRB_ARGS_REQ(3));
-  mrb_define_module_function(mrb, ledc, "detach", mrb_esp32_ledc_write, MRB_ARGS_REQ(1));
+  mrb_define_module_function(mrb, ledc, "detach", mrb_esp32_ledc_detach, MRB_ARGS_REQ(1));
 
   constants = mrb_define_module_under(mrb, esp32, "Constants");
 
