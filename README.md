@@ -26,7 +26,7 @@ channel = ESP32::LEDC_CHANNEL_0
 timer = ESP32::LEDC_TIMER_0
 resolution = ESP32::LEDC_TIMER_10_BIT
 frequency = 1000
-pin = ESP32::GPIO::GPIO_NUM_2
+pin = ESP32::GPIO_NUM_2
 
 ESP32::LEDC.timer_config(group, timer, resolution, frequency)
 ESP32::LEDC.channel_config(pin, group, timer, channel)
