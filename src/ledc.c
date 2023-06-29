@@ -30,7 +30,6 @@ mrb_esp32_ledc_timer_config(mrb_state *mrb, mrb_value self) {
 
 static mrb_value
 mrb_esp32_ledc_channel_config(mrb_state *mrb, mrb_value self) {
-  // Only set pin and channel for now. Can add more config later.
   mrb_value pin, group, timer, ch;
 
   mrb_get_args(mrb, "oooo", &pin, &group, &timer, &ch);
@@ -129,7 +128,7 @@ mrb_esp32_ledc_unset_pin(mrb_state *mrb, mrb_value self) {
     return mrb_nil_value();
   }
   
-  // PIN_FUNC_GPIO = 2. Normal GPIO.
+  // PIN_FUNC_GPIO is integer 2, which returns the pin to normal GPIO mode.
   // Last param is output inversion.
   gpio_iomux_out(mrb_fixnum(pin), PIN_FUNC_GPIO, false);
     
@@ -141,8 +140,10 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
 {
   struct RClass *esp32, *ledc, *constants;
 
+  // ESP32 mruby module
   esp32 = mrb_define_module(mrb, "ESP32");
 
+  // ESP32::LEDC
   ledc = mrb_define_module_under(mrb, esp32, "LEDC");
   mrb_define_module_function(mrb, ledc, "timer_config", mrb_esp32_ledc_timer_config, MRB_ARGS_REQ(4));
   mrb_define_module_function(mrb, ledc, "channel_config", mrb_esp32_ledc_channel_config, MRB_ARGS_REQ(4));
@@ -152,37 +153,50 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
   mrb_define_module_function(mrb, ledc, "set_pin", mrb_esp32_ledc_set_pin, MRB_ARGS_REQ(3));
   mrb_define_module_function(mrb, ledc, "unset_pin", mrb_esp32_ledc_unset_pin, MRB_ARGS_REQ(1));
 
+  // ESP32::Constants
   constants = mrb_define_module_under(mrb, esp32, "Constants");
 
-#define define_const(SYM) \
+  // Pass a C constant through to mruby, defined inside ESP32::Constants.
+  #define define_const(SYM) \
   do { \
     mrb_define_const(mrb, constants, #SYM, mrb_fixnum_value(SYM)); \
   } while (0)
 
-  // LEDC channel groups.
-  // High speed not available on some devices.
-  define_const(LEDC_HIGH_SPEED_MODE);
-  define_const(LEDC_LOW_SPEED_MODE);
+  //
+  // LEDC Speed Modes (Groups)
+  // All chips define LEDC_LOW_SPEED_MODE, with either 6 or 8 channels.
+  define_const(LEDC_LOW_SPEED_MODE); 
+  //
+  // Only original ESP32 defines LEDC_HIGH_SPEED_MODE, second group with 8 more channels.
+  #if defined(CONFIG_IDF_TARGET_ESP32)
+    define_const(LEDC_HIGH_SPEED_MODE);
+  #endif
   
-  // LEDC channel numbers. 8 channels per group.
+  //
+  // LEDC Channels
+  // All chips define LEDC_CHANNEL_MAX and LEDC_CHANNEL_0..LEDC_CHANNEL_5.
+  define_const(LEDC_CHANNEL_MAX);
   define_const(LEDC_CHANNEL_0);
   define_const(LEDC_CHANNEL_1);
   define_const(LEDC_CHANNEL_2);
   define_const(LEDC_CHANNEL_3);
   define_const(LEDC_CHANNEL_4);
   define_const(LEDC_CHANNEL_5);
-  define_const(LEDC_CHANNEL_6);
-  define_const(LEDC_CHANNEL_7);
-  define_const(LEDC_CHANNEL_MAX);
-
-  // LEDC timer numbers. 4 timers per group of 8 channels.
+  // Only original ESP32, S2 and S3 have 6,7.
+  #if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
+    define_const(LEDC_CHANNEL_6);
+    define_const(LEDC_CHANNEL_7);
+  #endif
+  
+  // All chips have 4 LEDC timers.
+  define_const(LEDC_TIMER_MAX);
   define_const(LEDC_TIMER_0);
   define_const(LEDC_TIMER_1);
   define_const(LEDC_TIMER_2);
   define_const(LEDC_TIMER_3);
-  define_const(LEDC_TIMER_MAX);
 
   // LEDC timer resolutions.
+  define_const(LEDC_TIMER_BIT_MAX);
   define_const(LEDC_TIMER_1_BIT);
   define_const(LEDC_TIMER_2_BIT);
   define_const(LEDC_TIMER_3_BIT);
@@ -197,13 +211,15 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
   define_const(LEDC_TIMER_12_BIT);
   define_const(LEDC_TIMER_13_BIT);
   define_const(LEDC_TIMER_14_BIT);
-  define_const(LEDC_TIMER_15_BIT);
-  define_const(LEDC_TIMER_16_BIT);
-  define_const(LEDC_TIMER_17_BIT);
-  define_const(LEDC_TIMER_18_BIT);
-  define_const(LEDC_TIMER_19_BIT);
-  define_const(LEDC_TIMER_20_BIT);
-  define_const(LEDC_TIMER_BIT_MAX);
+  // 15-bit+ timers available on original ESP32, C6 and H2.
+  #if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2)
+    define_const(LEDC_TIMER_15_BIT);
+    define_const(LEDC_TIMER_16_BIT);
+    define_const(LEDC_TIMER_17_BIT);
+    define_const(LEDC_TIMER_18_BIT);
+    define_const(LEDC_TIMER_19_BIT);
+    define_const(LEDC_TIMER_20_BIT);
+  #endif
 }
 
 void
