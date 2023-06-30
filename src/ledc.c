@@ -168,7 +168,7 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
   define_const(LEDC_LOW_SPEED_MODE); 
   //
   // Only original ESP32 defines LEDC_HIGH_SPEED_MODE, second group with 8 more channels.
-  #if defined(CONFIG_IDF_TARGET_ESP32)
+  #ifdef SOC_LEDC_SUPPORT_HS_MODE
     define_const(LEDC_HIGH_SPEED_MODE);
   #endif
   
@@ -183,7 +183,7 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
   define_const(LEDC_CHANNEL_4);
   define_const(LEDC_CHANNEL_5);
   // Only original ESP32, S2 and S3 have 6,7.
-  #if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
+  #if SOC_LEDC_CHANNEL_NUM==8
     define_const(LEDC_CHANNEL_6);
     define_const(LEDC_CHANNEL_7);
   #endif
@@ -211,8 +211,8 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
   define_const(LEDC_TIMER_12_BIT);
   define_const(LEDC_TIMER_13_BIT);
   define_const(LEDC_TIMER_14_BIT);
-  // 15-bit+ timers available on original ESP32, C6 and H2.
-  #if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2)
+  // 15 to 20-bit timers available on original ESP32, C6 and H2.
+  #if SOC_LEDC_TIMER_BIT_WIDTH==20
     define_const(LEDC_TIMER_15_BIT);
     define_const(LEDC_TIMER_16_BIT);
     define_const(LEDC_TIMER_17_BIT);
