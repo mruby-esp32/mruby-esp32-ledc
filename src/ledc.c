@@ -187,7 +187,6 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
     define_const(LEDC_CHANNEL_6);
     define_const(LEDC_CHANNEL_7);
   #endif
-  define_const(SOC_LEDC_CHANNEL_NUM);
   
   // All chips have 4 LEDC timers.
   define_const(LEDC_TIMER_MAX);
@@ -221,7 +220,6 @@ mrb_mruby_esp32_ledc_gem_init(mrb_state* mrb)
     define_const(LEDC_TIMER_19_BIT);
     define_const(LEDC_TIMER_20_BIT);
   #endif
-  define_const(SOC_LEDC_TIMER_BIT_WIDTH);
 }
 
 void
