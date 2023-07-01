@@ -32,5 +32,5 @@ ESP32::LEDC.timer_config(group, timer, resolution, frequency)
 ESP32::LEDC.channel_config(pin, group, timer, channel)
 
 # Set the built-in LED to 1/8 brightness.
-ESP32::LEDC.write(group, channel, 128)
+ESP32::LEDC.set_duty(group, channel, 128)
 ```
