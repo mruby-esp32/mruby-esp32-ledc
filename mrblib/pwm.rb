@@ -19,7 +19,6 @@ class PWM
 
   def frequency(freq)
     self.f = freq
-    print(self.f)
     ESP32::LEDC.set_freq(self.group, self.timer, self.f)
   end
 
@@ -28,12 +27,12 @@ class PWM
   end
 
   def duty(percent)
-    self.d = Rational(percent, 100).to_i
-    ESP32::LEDC.set_duty(self.group, self.channel, self.d)
+    self.d = Rational(percent, 100)
+    ESP32::LEDC.set_duty(self.group, self.channel, (self.d * (2 ** self.resolution)).to_i)
   end
 
   def pulse_width_us(micro_sec)
-    us_per_bit = Rational(1_000_000, self.f) / (2 ** self.resolution)
+    us_per_bit = Rational(1_000_000, self.f)
     duty((Rational(micro_sec, us_per_bit) * 100).to_i)
   end
 end
